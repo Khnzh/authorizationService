@@ -1,0 +1,27 @@
+package utils
+
+import (
+	"encoding/json"
+	"fmt"
+	"net/http"
+)
+
+func RespondWithJSON(w http.ResponseWriter, code int, payload any) {
+	w.WriteHeader(code)
+	w.Header().Add("Content-Type", "application/json")
+	res, err := json.Marshal(payload)
+	if err != nil {
+		RespondWithError(w, 500, fmt.Sprintf("%v", err))
+	}
+	w.Write(res)
+}
+
+func RespondWithError(w http.ResponseWriter, code int, payload string) {
+	w.WriteHeader(code)
+	w.Header().Add("Content-Type", "application/json")
+	res, err := json.Marshal(payload)
+	if err != nil {
+		fmt.Println("Error occured while marshaling err:", err)
+	}
+	w.Write(res)
+}
