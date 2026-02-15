@@ -13,7 +13,10 @@ func RespondWithJSON(w http.ResponseWriter, code int, payload any) {
 	if err != nil {
 		RespondWithError(w, 500, fmt.Sprintf("%v", err))
 	}
-	w.Write(res)
+	_, err = w.Write(res)
+	if err != nil {
+		fmt.Println("Error writing to response", err)
+	}
 }
 
 func RespondWithError(w http.ResponseWriter, code int, payload string) {
@@ -23,5 +26,8 @@ func RespondWithError(w http.ResponseWriter, code int, payload string) {
 	if err != nil {
 		fmt.Println("Error occured while marshaling err:", err)
 	}
-	w.Write(res)
+	_, err = w.Write(res)
+	if err != nil {
+		fmt.Println("Error writing to response", err)
+	}
 }

@@ -14,6 +14,7 @@ import (
 	// "example.com/authorizationService/handlers"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -48,8 +49,18 @@ func main() {
 	defer closeConns(APIConnections.Redis)
 
 	r := chi.NewRouter()
+	r.Use(cors.Handler(cors.Options{
+		AllowedOrigins:   []string{"*"},
+		AllowedMethods:   []string{"GET", "PUT", "POST", "PATCH", "UPDATE", "DELETE"},
+		AllowedHeaders:   []string{"*"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: false,
+		MaxAge:           300,
+	},
+	))
 	r.Use(middleware.Logger)
-	r.Post("/", api.HandleCreateUser)
+	r.Get("/healthz", api.PingDatabases)
+	r.Post("/signup", api.HandleCreateUser)
 	r.Post("/login", api.HandleFetchUser)
 	http.ListenAndServe(":3000", r)
 }
