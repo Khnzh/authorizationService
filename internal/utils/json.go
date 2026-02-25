@@ -7,8 +7,8 @@ import (
 )
 
 func RespondWithJSON(w http.ResponseWriter, code int, payload any) {
-	w.WriteHeader(code)
 	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(code)
 	res, err := json.Marshal(payload)
 	if err != nil {
 		RespondWithError(w, 500, fmt.Sprintf("%v", err))
@@ -20,8 +20,8 @@ func RespondWithJSON(w http.ResponseWriter, code int, payload any) {
 }
 
 func RespondWithError(w http.ResponseWriter, code int, payload string) {
-	w.WriteHeader(code)
 	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(code)
 	res, err := json.Marshal(payload)
 	if err != nil {
 		fmt.Println("Error occured while marshaling err:", err)

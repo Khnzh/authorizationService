@@ -8,6 +8,7 @@ import (
 
 	"example.com/authorizationService/db"
 	handlers "example.com/authorizationService/internal/handler"
+	cust_middleware "example.com/authorizationService/internal/handler/middleware"
 	"example.com/authorizationService/internal/models"
 	"github.com/joho/godotenv"
 
@@ -38,7 +39,7 @@ func main() {
 	APIConnections.DB = db.New(fmt.Sprintf("postgres://%v:%v@%v:%v/authServ?sslmode=disable", os.Getenv("POSTGRES_USER"), os.Getenv("POSTGRES_PASSWORD"), os.Getenv("POSTGRES_HOST"), os.Getenv("POSTGRES_PORT")))
 
 	APIConnections.Redis = redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
+		Addr:     fmt.Sprintf("%v:%v", os.Getenv("REDIS_HOST"), os.Getenv("REDIS_PORT")),
 		Password: "",
 		DB:       0,
 	})
@@ -61,6 +62,6 @@ func main() {
 	r.Use(middleware.Logger)
 	r.Get("/healthz", api.PingDatabases)
 	r.Post("/signup", api.HandleCreateUser)
-	r.Post("/login", api.HandleFetchUser)
+	r.Post("/login", cust_middleware.AuthCheck(api.HandleFetchUser))
 	http.ListenAndServe(":3000", r)
 }

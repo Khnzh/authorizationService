@@ -64,7 +64,7 @@ func (api *ServiceApis) HandleCreateUser(w http.ResponseWriter, r *http.Request)
 	utils.RespondWithJSON(w, 201, models.DatabaseUserToStruct(user))
 }
 
-func (api *ServiceApis) HandleFetchUser(w http.ResponseWriter, r *http.Request) {
+func (api *ServiceApis) HandleFetchUser(w http.ResponseWriter, r *http.Request, u models.User) {
 	type Parameters struct {
 		Email    string `json:"email"`
 		Password string `json:"password"`
@@ -84,13 +84,20 @@ func (api *ServiceApis) HandleFetchUser(w http.ResponseWriter, r *http.Request) 
 		utils.RespondWithError(w, 400, "Invalid credentials")
 		return
 	}
-
 	err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(params.Password))
 	if err != nil {
 		fmt.Println(err)
 		utils.RespondWithError(w, 400, "Invalid credentials")
 		return
 	}
+	serializedUser := models.DatabaseUserToStruct(user)
+	s, err := utils.GenerateToken(serializedUser)
+	w.Header().Add("Set-Cookie", s)
+	if err != nil {
+		fmt.Println(err)
+		utils.RespondWithError(w, 400, "Invalid credentials")
+		return
+	}
 
-	utils.RespondWithJSON(w, 200, "Logged in successfully!")
+	utils.RespondWithJSON(w, 200, "")
 }
